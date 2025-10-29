@@ -36,8 +36,7 @@ export const getToken: (options: RouterOptions) => RequestHandler =
       DEFAULT_SSO_BASE_URL;
     const realm =
       config.getOptionalString('resourceOptimization.realm') ?? DEFAULT_REALM;
-    const scope =
-      config.getOptionalString('resourceOptimization.scope') ?? DEFAULT_SCOPE;
+    const scope = config.getOptionalString('resourceOptimization.scope');
 
     const params = {
       tokenUrl: `${ssoBaseUrl}/auth/realms/${realm}/protocol/openid-connect/token`,
@@ -47,17 +46,26 @@ export const getToken: (options: RouterOptions) => RequestHandler =
       grantType: 'client_credentials',
     } as const;
 
+    // Build request body - only include scope if it's explicitly configured
+    const requestBody: Record<string, string> = {
+      client_id: params.clientId,
+      client_secret: params.clientSecret,
+      grant_type: params.grantType,
+    };
+
+    if (params.scope) {
+      requestBody.scope = params.scope;
+    }
+
     const rhSsoResponse = await fetch(params.tokenUrl, {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       body: new URLSearchParams(
-        Object.entries({
-          client_id: params.clientId,
-          client_secret: params.clientSecret,
-          scope: params.scope,
-          grant_type: params.grantType,
-        }).map(([k, v]) => [encodeURIComponent(k), encodeURIComponent(v)]),
+        Object.entries(requestBody).map(([k, v]) => [
+          encodeURIComponent(k),
+          encodeURIComponent(v),
+        ]),
       ),
       method: 'POST',
     });
