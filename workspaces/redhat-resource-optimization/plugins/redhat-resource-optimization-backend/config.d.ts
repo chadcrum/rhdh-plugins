@@ -17,11 +17,28 @@
 export interface Config {
   resourceOptimization: {
     /**
-     * @default "https://sso.redhat.com"
+     * SSO/Keycloak base URL
      *
+     * @default "https://sso.redhat.com"
      * @visibility backend
      */
     ssoBaseUrl?: string;
+
+    /**
+     * Keycloak realm name
+     *
+     * @default "redhat-external"
+     * @visibility backend
+     */
+    realm?: string;
+
+    /**
+     * OAuth2 scope for token requests
+     *
+     * @default "api.console"
+     * @visibility backend
+     */
+    scope?: string;
 
     /** @visibility backend */
     clientId: string;

@@ -20,6 +20,8 @@ import type { GetTokenResponse } from '../models/GetTokenResponse';
 import { RouterOptions } from '../models/RouterOptions';
 
 const DEFAULT_SSO_BASE_URL = 'https://sso.redhat.com';
+const DEFAULT_REALM = 'redhat-external';
+const DEFAULT_SCOPE = 'api.console';
 
 export const getToken: (options: RouterOptions) => RequestHandler =
   options => async (_, response) => {
@@ -32,11 +34,16 @@ export const getToken: (options: RouterOptions) => RequestHandler =
     const ssoBaseUrl =
       config.getOptionalString('resourceOptimization.ssoBaseUrl') ??
       DEFAULT_SSO_BASE_URL;
+    const realm =
+      config.getOptionalString('resourceOptimization.realm') ?? DEFAULT_REALM;
+    const scope =
+      config.getOptionalString('resourceOptimization.scope') ?? DEFAULT_SCOPE;
+
     const params = {
-      tokenUrl: `${ssoBaseUrl}/auth/realms/redhat-external/protocol/openid-connect/token`,
+      tokenUrl: `${ssoBaseUrl}/auth/realms/${realm}/protocol/openid-connect/token`,
       clientId: config.getString('resourceOptimization.clientId'),
       clientSecret: config.getString('resourceOptimization.clientSecret'),
-      scope: 'api.console',
+      scope: scope,
       grantType: 'client_credentials',
     } as const;
 
